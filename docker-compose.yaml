@@ -1,0 +1,29 @@
+services:
+  db:
+    image: mysql:8.0.36-bookworm
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: pwd
+      MYSQL_DATABASE: portfolio
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pwd
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  portfolio:
+    build: 
+      context: .
+    ports:
+      - 8080:80
+    environment:
+      DB_HOST: db
+      DB_USER: user
+      DB_PWD: pwd
+      DB_NAME: portfolio
+    depends_on:
+      db:
+        condition: service_healthy
